@@ -1,96 +1,225 @@
-# Smart List — Expo + React Native + Spring Boot
+# 🛒 Smart List
 
-Projeto mobile em **React Native / Expo SDK 58**, com **Expo Router**, **TypeScript estrito**, **StyleSheet modular**, **Zustand**, **Axios**, **SecureStore**, **expo-location + expo-task-manager**, **expo-notifications** e **react-native-maps**.
+Aplicativo mobile para organizar compras e ajudar você a não esquecer itens pendentes ao sair de casa. O Smart List combina uma lista de compras com um lembrete por geofence: quando o sistema detecta que o aparelho saiu da residência configurada, o app pode exibir uma notificação com os itens que ainda faltam.
 
-O ZIP contém o projeto-fonte pronto para instalar dependências e integrar; **não inclui `node_modules`, build nativa/APK nem uma instância Spring Boot**. As imagens de referência fornecidas pelo usuário estão em `docs/referencias-visuais`.
+> **Este repositório contém o aplicativo mobile.** A API Spring Boot é um serviço separado e precisa estar em execução para carregar e alterar a lista, as preferências e a residência. O projeto não inclui uma instância do backend, `node_modules` ou um APK pronto.
 
-## Executar (Node 22.13+)
+## ✨ O que o aplicativo faz
+
+- 📝 Adiciona e edita produtos com nome, quantidade livre (por exemplo, `2 un` ou `500 g`) e categoria.
+- ✅ Separa itens pendentes dos comprados; permite marcar, desmarcar, excluir e limpar os itens concluídos.
+- 🏠 Configura uma residência usando a localização do aparelho ou um ponto escolhido no mapa.
+- 📍 Monitora a saída do perímetro residencial e pode avisar quando ainda existem compras pendentes.
+- 🔔 Permite pausar os lembretes por 30 minutos, 1 hora, até a manhã seguinte ou manualmente.
+- ⚙️ Mantém preferências de lembrete e vibração, e apresenta o estado de permissões e conectividade.
+- 🔐 Gera um identificador UUID por instalação e o armazena no armazenamento seguro do dispositivo.
+
+O cadastro e a manutenção da lista exigem conexão com a API. A localização não é necessária para usar essas funções: sem conceder essa permissão, o usuário ainda pode trabalhar com a lista, mas o lembrete por saída de casa não será ativado.
+
+## 🧰 Tecnologias
+
+- **React Native** e **Expo SDK 58**
+- **TypeScript** com verificação de tipos
+- **Expo Router** para navegação baseada em arquivos
+- **Zustand** para estado compartilhado
+- **Axios** para comunicação HTTP
+- **AsyncStorage** para dados locais usados no onboarding e nas tarefas em segundo plano
+- **Expo SecureStore** para o identificador do dispositivo
+- **Expo Location** e **Expo Task Manager** para localização e geofencing
+- **Expo Notifications** para notificações locais
+- **React Native Maps** para selecionar a residência
+- Módulo nativo Android local para a apresentação customizada de notificações
+
+## 🚀 Começando
+
+### Pré-requisitos
+
+- Node.js **22.13 ou superior**
+- npm
+- Android Studio e Android SDK para executar em emulador ou aparelho Android
+- Xcode para executar a versão iOS (macOS)
+- Uma API Spring Boot compatível com os contratos descritos em [`docs/INTEGRACAO_BACKEND.md`](./docs/INTEGRACAO_BACKEND.md)
+
+### 1. Instale as dependências
+
+Na pasta do projeto:
 
 ```bash
 npm install
-copy .env.example .env
-# Edite EXPO_PUBLIC_API_URL com o IP da máquina que roda o Spring Boot.
 npx expo install --fix
-npm run typecheck
+```
+
+O segundo comando alinha as dependências Expo com as versões esperadas pelo SDK do projeto.
+
+### 2. Configure a API
+
+Crie um arquivo `.env` na raiz do projeto e configure a URL base do backend:
+
+```dotenv
+EXPO_PUBLIC_API_URL=http://192.168.0.10:8080
+```
+
+Substitua o endereço e a porta pelos valores do seu ambiente. Informe a **origem** da API, sem acrescentar `/api/v1`; o cliente do aplicativo adiciona esse prefixo automaticamente.
+
+| Ambiente | Exemplo de endereço |
+|---|---|
+| Android Emulator | `http://10.0.2.2:8080` |
+| Aparelho físico na mesma rede do computador | `http://IP_DO_COMPUTADOR:8080` |
+| Outro ambiente | URL acessível pelo aparelho, preferencialmente com HTTPS |
+
+`localhost` em um aparelho físico aponta para o próprio aparelho, não para o computador que executa o backend. Verifique também se o servidor aceita conexões da rede e se o firewall permite o acesso.
+
+> ⚠️ O projeto permite tráfego HTTP no Android para facilitar o desenvolvimento local. Antes de distribuir uma versão, use HTTPS e desative o tráfego sem criptografia na configuração nativa. A variável `EXPO_PUBLIC_*` é incorporada ao aplicativo; não coloque nela senhas, tokens ou outros segredos.
+
+### 3. Inicie o aplicativo
+
+Para abrir no Expo Go:
+
+```bash
+npm start
+```
+
+Ou, diretamente:
+
+```bash
 npx expo start --go
 ```
 
-No Android físico, abra o Expo Go e leia o QR Code. A localização em primeiro plano, os mapas e as notificações locais podem ser desenvolvidos no Expo Go; o geofencing em segundo plano requer um development build.
+Leia o QR Code com o Expo Go ou inicie um emulador a partir do terminal do Expo.
 
-O `EXPO_PUBLIC_API_URL` deve conter o endereço **sem** `/api/v1`, por exemplo `http://192.168.0.10:8080`. `localhost` no celular aponta para o próprio celular. O build Android deste projeto permite HTTP usando `expo-build-properties` (`usesCleartextTraffic=true`) APENAS para facilitar a conexão com Spring Boot local em desenvolvimento. **Antes de distribuir o aplicativo em produção, altere para `false`, use HTTPS e reconstrua o binário.** O projeto não armazena senha ou token de autenticação.
+### 4. Execute verificações
 
-### Geofencing em segundo plano
+```bash
+npm run typecheck
+npm run doctor
+```
 
-As tarefas de geofencing em background não são suportadas pelo Expo Go. O app permite testar telas, mapas, localização em primeiro plano e notificações locais nessa modalidade, sem tentar registrar a tarefa em background. Para validar alertas ao sair da residência e o layout Android customizado da notificação, use um development build (`npx expo run:android` ou `eas build --profile development --platform android`) em aparelho real. O layout apresenta ícones por categoria, pois a API não fornece imagens dos produtos. Autorize localização em uso, localização **o tempo todo** e notificações. Android 13+ requer consentimento explícito para notificações. Android pode atrasar eventos por economia de bateria e **não reinicia automaticamente o app encerrado por força** para executar tarefas de geofencing. No iOS, as regras do sistema também se aplicam. Nenhum alerta é garantido em todos os modelos de telefone.
+Os scripts disponíveis estão definidos em [`package.json`](./package.json):
 
-## Árvore de pastas
+| Comando | Finalidade |
+|---|---|
+| `npm start` | Inicia o Expo Go |
+| `npm run android` | Compila e executa no Android com o ambiente nativo local |
+| `npm run ios` | Compila e executa no iOS (requer macOS e Xcode) |
+| `npm run typecheck` | Executa `tsc --noEmit` |
+| `npm run doctor` | Verifica a configuração do projeto Expo |
+| `npm run fix-deps` | Ajusta as versões das dependências Expo |
+
+## 📲 Como usar
+
+1. **Boas-vindas:** escolha configurar a residência agora ou começar pela lista e configurar depois.
+2. **Lista:** crie itens, informe quantidades e categorias, e marque os produtos conforme forem comprados.
+3. **Residência:** permita o acesso à localização, selecione o ponto residencial e salve o endereço.
+4. **Lembretes:** permita notificações e, para monitorar saídas em segundo plano, autorize a localização o tempo todo.
+5. **Pausa:** na lista, toque em **Pausar** para escolher por quanto tempo suspender os avisos; use **Reativar** para retomá-los antes do prazo.
+
+O perímetro residencial tem raio de **150 metros**, valor definido pela API. A tela de residência pode mostrar o mapa e o endereço associado às coordenadas configuradas.
+
+## 🧭 Como funciona por dentro
+
+### Lista e estado do aplicativo
+
+As telas Expo Router chamam as stores Zustand, que coordenam as operações e mantêm os dados exibidos. A store da lista usa `shoppingListService` para consultar ou alterar itens na API; após uma alteração bem-sucedida, atualiza os grupos de pendentes e concluídos. A store de configurações carrega preferências, residência, permissões e estado dos lembretes.
+
+### Comunicação com o backend
+
+O cliente Axios usa a URL configurada em `EXPO_PUBLIC_API_URL`, acrescenta `/api/v1` e injeta o cabeçalho `X-Device-ID` em cada chamada. O identificador é criado com UUID e salvo pelo SecureStore. **Ele identifica uma instalação, mas não autentica o usuário.** A API deve aplicar os controles de segurança apropriados e usar HTTPS em produção.
+
+Principais rotas usadas pelo app:
+
+| Recurso | Operações |
+|---|---|
+| Itens de compra | `GET` e `POST /shopping-items`; `PUT`, `PATCH .../toggle` e `DELETE /shopping-items/{id}`; `DELETE /shopping-items/completed` |
+| Preferências | `GET` e `PUT /settings`; `GET /settings/diagnostic` |
+| Saúde da API | `GET /health` |
+| Residência | `GET` e `POST /residence`; `POST /residence/check-geofence` |
+| Pausa de lembretes | `POST` e `DELETE /notifications/snooze` |
+
+O contrato detalhado, exemplos de payload e enums aceitos estão em [`docs/INTEGRACAO_BACKEND.md`](./docs/INTEGRACAO_BACKEND.md).
+
+### Lembrete de saída de casa
+
+1. O app precisa de uma residência salva, lembretes ativos e permissões de localização e notificação compatíveis com o sistema.
+2. `locationService` registra a região residencial com `Location.startGeofencingAsync`. A tarefa `geofenceTask` é definida no escopo do módulo e carregada pelo layout raiz.
+3. A lista pendente, as preferências, a residência e a pausa são gravadas em um snapshot local. Assim, a tarefa em background não depende de uma store React estar montada.
+4. Ao entrar na região, o app atualiza o estado de presença. Uma saída posterior pode gerar a notificação se ainda houver itens pendentes e os lembretes não estiverem pausados.
+5. A notificação permite abrir a lista e, no Android nativo, oferece ações para adiar ou dispensar. A ação de adiar sincroniza a pausa com o backend quando o app é aberto.
+
+O app não envia um aviso retroativo se for iniciado quando o aparelho já estiver fora da região. O snapshot local também pode ficar desatualizado até que uma sincronização com a API seja concluída.
+
+## 🔔 Expo Go e development build
+
+O **Expo Go** permite desenvolver e testar as telas, a lista, a localização em primeiro plano e notificações locais. Porém, ele não carrega o módulo Android customizado deste projeto e **não oferece suporte ao geofencing em segundo plano**.
+
+Para testar o fluxo real de saída de casa e o layout Android customizado, instale um development build em um aparelho:
+
+```bash
+npx expo run:android
+```
+
+Ou crie um build interno com EAS:
+
+```bash
+eas build --profile development --platform android
+```
+
+O EAS CLI precisa estar instalado e configurado para o segundo comando. Para o teste, conceda localização em primeiro plano, localização em segundo plano (**o tempo todo**) e notificações. No Android 13 ou superior, notificações dependem de autorização explícita.
+
+### Limitações do sistema operacional
+
+- Android e iOS podem atrasar ou limitar eventos de localização em background por economia de bateria, permissões ou políticas do sistema.
+- No Android, encerrar o app por força pode impedir que a tarefa de geofence volte a ser executada automaticamente.
+- No iOS, a execução também está sujeita às regras do sistema e ao estado das permissões.
+- Nenhum sistema garante que o evento de saída ou a notificação ocorrerá em um prazo exato em todos os aparelhos.
+- A notificação Android customizada exibe ícones de categoria, pois a API não fornece imagens dos produtos. No Expo Go e no iOS é usada a apresentação padrão do Expo Notifications.
+
+## 🗂️ Estrutura do projeto
 
 ```text
 src/
-  api/          client.ts, deviceId.ts, adapters.ts
-  services/     shoppingListService.ts, settingsService.ts, residenceService.ts,
-                notificationService.ts, locationService.ts, backgroundSnapshot.ts
-  store/        useAppStore.ts, useSettingsStore.ts
-  types/        shopping.ts, settings.ts
-  utils/        format.ts, geometry.ts
-  constants/    theme.ts, categories.ts
-  ui/           PrimaryButton.tsx, TextField.tsx, BottomSheet.tsx, SettingSwitch.tsx
-  domain/       ItemCard.tsx, CategoryChip.tsx, UnitChip.tsx
-  components/   AppHeader.tsx, SnoozeSheet.tsx, PermissionRow.tsx, ScreenState.tsx
-  tasks/        geofenceTask.ts
-  app/          index.tsx, _layout.tsx, onboarding.tsx, item.tsx, residence.tsx,
-                (tabs)/index.tsx, (tabs)/settings.tsx, (tabs)/_layout.tsx
+├── api/          # Cliente HTTP, identificador do dispositivo e adaptação dos DTOs
+├── app/          # Rotas e telas do Expo Router
+│   └── (tabs)/   # Lista e configurações
+├── components/   # Componentes de tela compartilhados
+├── constants/    # Categorias e tema visual
+├── domain/       # Componentes de domínio, como cartões e chips de item
+├── services/     # Lista, configurações, residência, localização e notificações
+├── store/        # Stores Zustand da lista e das configurações
+├── tasks/        # Tarefa de geofencing em segundo plano
+├── types/        # Tipos TypeScript do domínio
+├── ui/           # Componentes básicos de interface
+└── utils/        # Formatação e utilitários geométricos
+
+modules/
+└── smart-list-notifications/  # Módulo nativo Android de notificações
+
+docs/
+├── INTEGRACAO_BACKEND.md      # Contratos e detalhes da integração
+└── referencias-visuais/       # Imagens de referência do projeto
 ```
 
-## API e contratos (importante)
+## 🔒 Privacidade e segurança
 
-- **Nenhum login**. No primeiro acesso, `src/api/deviceId.ts` gera `Crypto.randomUUID()` e armazena no **SecureStore**. `src/api/client.ts` injeta `X-Device-ID` em TODAS as requisições (inclusive diagnóstico).
-- Lista: `GET /shopping-items`, `POST /shopping-items`, `PUT /shopping-items/{id}`, `PATCH /shopping-items/{id}/toggle`, `DELETE /shopping-items/{id}`, `DELETE /shopping-items/completed`.
-- Preferências: `GET/PUT /settings`, `GET /settings/diagnostic`, `GET /health`.
-- Residência: `GET/POST /residence`, `POST /residence/check-geofence` (endpoint documentado e disponível no serviço, mas monitoramento nativo dispensa chamadas repetidas).
-- Notificações: `POST /notifications/snooze` e `DELETE /notifications/snooze`.
+- O UUID do dispositivo é estável para a instalação, mas **não deve ser tratado como credencial**.
+- A residência é enviada à API para persistência e configuração. O monitoramento do perímetro é realizado pelo sistema de localização do aparelho.
+- Limpar dados ou reinstalar o app pode alterar o identificador; o comportamento de persistência do SecureStore varia entre plataformas.
+- Em produção, use HTTPS, revise a configuração de tráfego HTTP e proteja os endpoints no backend. Não há fluxo de login ou autenticação implementado neste aplicativo.
+- Conceda somente as permissões necessárias. A lista pode ser utilizada sem localização, mas o lembrete de saída depende dela.
 
-Os contratos de escrita abaixo correspondem aos DTOs atuais do backend:
+## 🧪 Sugestão de validação em aparelho
 
-```json
-POST /shopping-items
-{"name":"Leite","quantity":"2 cx","category":"MERCADO"}
+1. Inicie o backend e confirme que o telefone consegue acessar a URL configurada.
+2. Execute o app e crie, edite, conclua e exclua um item.
+3. Configure a residência e verifique as permissões na tela de configurações.
+4. Em um development build, deixe um item pendente e os lembretes ativos; teste a saída do perímetro durante um deslocamento normal.
+5. Teste também lembretes pausados, lista sem itens pendentes, permissões negadas, perda de rede, app em segundo plano e reinício.
 
-PUT /settings
-{"remindOnLeave":true,"vibrateOnNotify":true,"notificationPermission":"PERMITIDO","locationPermission":"APENAS_DURANTE_USO"}
+Não é necessário simular deslocamentos arriscados: faça esses testes apenas durante um trajeto seguro e normal.
 
-POST /residence
-{"address":"Exemplo","latitude":-10.90,"longitude":-37.07,"geofenceActive":true}
+## 📚 Referências
 
-POST /notifications/snooze
-{"option":"MINUTES_30"}
-```
-
-O enum de soneca também aceita `HOUR_1`, `TOMORROW_MORNING` e `INDEFINITE`. A API fixa o raio residencial em 150 m. Para `GET /shopping-items`, a resposta contém `pendingItems` e `completedItems`; os IDs numéricos são normalizados como strings no app.
-
-### Monitoramento de saída
-
-1. O usuário concede permissões e salva um ponto residencial (raio fixo de 150 m, conforme o backend).
-2. `locationService.syncRegistration()` registra uma região via `Location.startGeofencingAsync`. O `TaskManager.defineTask` fica no **topo do arquivo**, carregado pelo layout raiz.
-3. A store atualiza `backgroundSnapshot.ts` com os itens pendentes, configurações, pausa e residência no AsyncStorage; o código da tarefa não depende de uma store React montada.
-4. Ao receber **Enter**, a tarefa marca `inside=true`. Ao receber **Exit** após estado `inside=true`, confere lembretes habilitados, pausa e lista pendente, e emite notificação local. O app **não avisa retroativamente** se instalado quando já está fora do raio.
-5. A notificação permite abrir a lista ou adiar 30 minutos. A ação de adiar abre o app e chama a API; não garante que o endpoint será chamado sem abrir o app. Quando o app é fechado à força no Android, a OS pode não executar a tarefa.
-
-**Limitações/segurança:** UUID v4 é uma identificação estável de instalação, **não autenticação**. Se o backend aceitar `X-Device-ID` como único controle, qualquer um que obtenha esse valor poderá falsificar chamadas: use TLS, rate limiting e tratamento de dispositivos suspeitos. Reinstalação/limpeza do SecureStore pode alterar o ID. `SecureStore` pode persistir após reinstalação no iOS, conforme plataforma. A localização é tratada localmente para geofencing, mas a residência configurada é enviada ao backend conforme o requisito. O serviço usa um snapshot local que pode estar desatualizado até a próxima sincronização bem-sucedida com a API.
-
-## Checklist de teste no aparelho
-
-1. Instalar o development build; verificar se a base URL e o backend estão acessíveis pela mesma rede.
-2. Confirmar no servidor que todas as chamadas têm o mesmo `X-Device-ID` e que o valor é um UUID válido.
-3. Criar um item com quantidade string, editar, marcar/desmarcar, excluir e limpar concluídos.
-4. Configurar endereço e raio; conceder permissões de foreground, background e notificações.
-5. Com um item pendente e lembretes ativos, testar **com segurança durante um deslocamento normal**, cruzando o perímetro. Verificar abertura da lista e Snooze.
-6. Testar bloqueio de tela, background, permissões negadas, pausa, retomada, sem itens pendentes, perda de rede e reinício do app.
-
-## Fontes oficiais de compatibilidade
-
-- Expo SDK 58: https://expo.dev/changelog
-- Geofencing/limitações: https://docs.expo.dev/versions/v58.0.0/sdk/location/
-- Notifications: https://docs.expo.dev/versions/latest/sdk/notifications/
-- react-native-maps: https://docs.expo.dev/versions/v58.0.0/sdk/map-view/
-- Router: https://docs.expo.dev/versions/latest/sdk/router/
+- [Expo SDK 58](https://expo.dev/changelog)
+- [Expo Location e geofencing](https://docs.expo.dev/versions/v58.0.0/sdk/location/)
+- [Expo Notifications](https://docs.expo.dev/versions/latest/sdk/notifications/)
+- [React Native Maps](https://docs.expo.dev/versions/v58.0.0/sdk/map-view/)
+- [Expo Router](https://docs.expo.dev/versions/latest/sdk/router/)
