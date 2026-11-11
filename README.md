@@ -94,6 +94,24 @@ npm run typecheck
 npm run doctor
 ```
 
+## 🐳 Executar a versão web com Docker
+
+O Docker publica a exportação web do Expo como arquivos estáticos. Esse modo é voltado a navegadores; recursos nativos como geofencing em segundo plano e permissões do Android/iOS continuam dependendo de uma instalação nativa do aplicativo.
+
+Configure a origem da API em `.env` (sem `/api/v1`) e inicie o serviço:
+
+```dotenv
+EXPO_PUBLIC_API_URL=http://192.168.0.10:8080
+```
+
+```bash
+docker compose up --build -d
+```
+
+Acesse `http://localhost:8080`. Para alterar a porta publicada, defina `FRONTEND_PORT` no `.env`. A URL da API é incorporada durante o build; execute novamente `docker compose up --build` após alterá-la. Como as chamadas à API são feitas pelo navegador, configure um endereço que também seja acessível pelo computador do usuário — por exemplo, o IP da máquina que executa o backend na rede local — e não um nome de host visível somente dentro do Docker.
+
+O container Nginx roda sem root, descarta capabilities e usa filesystem somente leitura; não precisa de `privileged`, acesso a dispositivos nem permissões adicionais no host.
+
 Os scripts disponíveis estão definidos em [`package.json`](./package.json):
 
 | Comando | Finalidade |
