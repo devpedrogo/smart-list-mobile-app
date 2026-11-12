@@ -21,6 +21,8 @@ const nativeNotifications = Platform.OS === 'android'
 const nativeNotificationsEmitter = nativeNotifications
   ? new NativeEventEmitter<{onNotificationAction:[{action:string}]}>(nativeNotifications)
   : null;
+
+// Exibe notificações enquanto o app está aberto, além de notificações em segundo plano.
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true, shouldShowList: true,
@@ -28,6 +30,7 @@ Notifications.setNotificationHandler({
   }),
 });
 export function snoozePayload(choice: SnoozeChoice): {payload:SnoozePayload; until:SnoozeUntil} {
+  // Mantém juntos o valor enviado ao backend e o horário usado localmente para retomar.
   switch (choice) {
     case 'manual': return { payload:{option:'INDEFINITE'}, until:'manual' };
     case 'tomorrow': return { payload:{option:'TOMORROW_MORNING'}, until:untilTomorrowMorning().getTime() };
@@ -36,7 +39,13 @@ export function snoozePayload(choice: SnoozeChoice): {payload:SnoozePayload; unt
     default: throw new Error('A opção de pausa selecionada é inválida.');
   }
 }
+
+/**
+ * Prepara permissões e apresentação, avisa sobre a saída do perímetro e sincroniza
+ * as ações de pausa/retomada com o backend.
+ */
 export const notificationService = {
+  /** Registra canal no Android e ações disponíveis na notificação. */
   async prepare(): Promise<void> {
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync(REMINDER_CHANNEL, {
@@ -51,12 +60,17 @@ export const notificationService = {
       {identifier:SNOOZE_ACTION, buttonTitle:'Adiar 30 min', options:{opensAppToForeground:true}},
     ]);
   },
+  /** Consulta primeiro a permissão existente e só solicita ao usuário se necessário. */
   async askPermission(): Promise<boolean> {
     const res = await Notifications.getPermissionsAsync();
     if (res.granted) return true;
     const asked = await Notifications.requestPermissionsAsync();
     return asked.granted;
   },
+  /**
+   * Prefere a notificação nativa Android, que pode agrupar detalhes; sem o módulo,
+   * agenda uma notificação Expo com resumo dos itens pendentes.
+   */
   async notifyDeparture(items: ShoppingItem[]): Promise<void> {
     if (nativeNotifications) {
       await nativeNotifications.presentDepartureNotification(
@@ -76,18 +90,22 @@ export const notificationService = {
       trigger: null,
     });
   },
+  /** Recupera uma ação nativa que possa ter sido tocada antes da inicialização do app. */
   async consumeNativeAction(): Promise<string|null> {
     return nativeNotifications?.consumePendingAction() ?? null;
   },
+  /** Observa ações da notificação Android durante a execução e devolve a inscrição. */
   addNativeActionListener(listener: (action:string)=>void): {remove:()=>void}|null {
     return nativeNotificationsEmitter?.addListener(
       'onNotificationAction',
       ({action})=>listener(action),
     ) ?? null;
   },
+  /** Registra no backend a opção de pausa escolhida pelo usuário. */
   async snooze(payload: SnoozePayload): Promise<void> {
     await api.post('/notifications/snooze', payload);
   },
+  /** Remove a pausa ativa no backend para reativar os lembretes. */
   async resume(): Promise<void> {
     await api.delete('/notifications/snooze');
   },
