@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '@/constants/theme';
+/** Organiza as abas principais e define os ícones e as cores da navegação. */
 export default function TabLayout(){
   return <Tabs screenOptions={{
     headerShown:false,
