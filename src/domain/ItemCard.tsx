@@ -4,6 +4,7 @@ import type { ShoppingItem } from '@/types/shopping';
 import { CategoryChip } from '@/domain/CategoryChip';
 import { colors } from '@/constants/theme';
 interface Props {item:ShoppingItem;onToggle:()=>void;onEdit:()=>void;onRemove:()=>void;disabled?:boolean;}
+/** Mostra um produto da lista e oferece ações para concluir, editar ou remover. */
 export function ItemCard({item,onToggle,onEdit,onRemove,disabled}:Props){
   return <View style={styles.card}>
     <Pressable accessibilityRole="checkbox" accessibilityState={{checked:item.completed}}

@@ -1,6 +1,7 @@
 import { Pressable, Text, StyleSheet } from 'react-native';
 import { colors } from '@/constants/theme';
 interface Props {label:string;onPress:()=>void;}
+/** Mostra um atalho que adiciona uma unidade à quantidade do produto. */
 export function UnitChip({label,onPress}:Props){
   return <Pressable onPress={onPress} style={styles.chip}>
     <Text style={styles.text}>{label}</Text>
