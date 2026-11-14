@@ -11,10 +11,12 @@ import { useSettingsStore } from '@/store/useSettingsStore';
 import { useAppStore } from '@/store/useAppStore';
 import { notificationService } from '@/services/notificationService';
 import { colors } from '@/constants/theme';
+/** Mostra o título de uma seção e, se necessário, um texto complementar. */
 function Heading({title,right}:{title:string;right?:string}){
   return <View style={styles.heading}><Text style={styles.sectionTitle}>{title}</Text>
     {!!right&&<Text style={styles.right}>{right}</Text>}</View>;
 }
+/** Cria uma opção de menu com ícone, descrição e ação ao tocar. */
 function MenuRow({icon,title,description,onPress,danger=false}:{icon:React.ComponentProps<typeof Ionicons>['name'];title:string;description:string;onPress:()=>void;danger?:boolean}){
   return <Pressable style={styles.menuRow} onPress={onPress}>
     <View style={[styles.iconBox,danger&&{backgroundColor:'#FFF0EE'}]}><Ionicons name={icon} size={18} color={danger?colors.red:colors.primary}/></View>
@@ -22,6 +24,7 @@ function MenuRow({icon,title,description,onPress,danger=false}:{icon:React.Compo
     <Ionicons name="chevron-forward-outline" size={19} color={colors.ink}/>
   </Pressable>;
 }
+/** Reúne as preferências, permissões e ações de gerenciamento do aplicativo. */
 export default function SettingsScreen(){
   const router=useRouter();
   const [testingNotification,setTestingNotification]=useState(false);
