@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect } from 'expo-router';
 import { cacheKeys } from '@/services/backgroundSnapshot';
 import { colors } from '@/constants/theme';
+/** Verifica se a apresentação inicial já foi concluída e abre a tela correspondente. */
 export default function Entry(){
   const [done,setDone]=useState<boolean|null>(null);
   useEffect(()=>{void AsyncStorage.getItem(cacheKeys.onboarding).then(value=>setDone(value==='true')).catch(()=>setDone(false));},[]);
