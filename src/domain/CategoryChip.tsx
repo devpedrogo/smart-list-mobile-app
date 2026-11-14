@@ -3,6 +3,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { getCategory } from '@/constants/categories';
 import { colors } from '@/constants/theme';
 interface Props {category:string;selected?:boolean;onPress?:()=>void;compact?:boolean;}
+/** Mostra a categoria de um produto e indica quando ela está selecionada. */
 export function CategoryChip({category,selected=false,onPress,compact=false}:Props){
   const info=getCategory(category);
   const iconName=info.icon as React.ComponentProps<typeof Ionicons>['name'];
