@@ -11,6 +11,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { colors,shadow } from '@/constants/theme';
 import type { ShoppingItem } from '@/types/shopping';
+/** Mostra o título e a quantidade de uma seção, permitindo abrir ou recolher seus itens. */
 function SectionTitle({title,count,expanded,onPress,trailing}:{title:string;count:number;expanded:boolean;onPress:()=>void;trailing?:React.ReactNode}){
   return <View style={styles.sectionRow}>
     <Pressable accessibilityRole="button" onPress={onPress} style={styles.sectionTap}>
@@ -20,6 +21,7 @@ function SectionTitle({title,count,expanded,onPress,trailing}:{title:string;coun
     </Pressable>{trailing}
   </View>;
 }
+/** Exibe os itens pendentes e comprados e permite gerenciar a lista. */
 export default function ShoppingListScreen(){
   const router=useRouter();
   const {pending,completed,busy,error,refresh,toggle,remove,clearError}=useAppStore();
