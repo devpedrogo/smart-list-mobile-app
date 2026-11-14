@@ -1,6 +1,7 @@
 import { View, Text, TextInput, StyleSheet, type TextInputProps } from 'react-native';
 import { colors } from '@/constants/theme';
 interface Props extends TextInputProps {label:string; optional?:boolean;}
+/** Campo de texto com rótulo e indicação opcional de preenchimento. */
 export function TextField({label,optional,...props}:Props){
   return <View style={styles.wrapper}>
     <View style={styles.labelLine}><Text style={styles.label}>{label}</Text>

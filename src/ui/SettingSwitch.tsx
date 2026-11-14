@@ -1,6 +1,7 @@
 import { View, Text, Switch, StyleSheet } from 'react-native';
 import { colors } from '@/constants/theme';
 interface Props {label:string;description?:string;value:boolean;onValueChange:(v:boolean)=>void;disabled?:boolean;}
+/** Exibe uma opção de configuração que pode ser ligada ou desligada. */
 export function SettingSwitch({label,description,value,onValueChange,disabled}:Props){
   return <View style={styles.row}>
     <View style={{flex:1,paddingRight:12}}><Text style={styles.label}>{label}</Text>

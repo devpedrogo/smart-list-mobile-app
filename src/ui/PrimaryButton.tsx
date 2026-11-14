@@ -5,6 +5,7 @@ interface Props extends PropsWithChildren {
   onPress:()=>void; loading?:boolean; secondary?:boolean;
   disabled?:boolean; style?:ViewStyle;
 }
+/** Botão reutilizável que também mostra carregamento e aceita o estado desativado. */
 export function PrimaryButton({children,onPress,loading=false,disabled=false,secondary=false,style}:Props){
   const inactive=disabled||loading;
   return <Pressable accessibilityRole="button" onPress={onPress} disabled={inactive}
