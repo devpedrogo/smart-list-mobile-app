@@ -10,6 +10,7 @@ import { notificationService } from '@/services/notificationService';
 import { PrimaryButton } from '@/ui/PrimaryButton';
 import { PermissionRow } from '@/components/PermissionRow';
 import { colors } from '@/constants/theme';
+/** Permite escolher a residência no mapa, revisar permissões e salvar a configuração. */
 export default function ResidenceScreen(){
   const router=useRouter();
   const configured=useSettingsStore(s=>s.residence);
