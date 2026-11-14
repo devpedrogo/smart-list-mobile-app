@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { colors } from '@/constants/theme';
 import { useSettingsStore } from '@/store/useSettingsStore';
 interface Props {title?:string;}
+/** Mostra o título da tela, o acesso às configurações e o estado do monitoramento. */
 export function AppHeader({title='Lista De Compras'}:Props){
   const router=useRouter();
   const enabled=useSettingsStore(s=>s.settings.remindersEnabled);

@@ -13,6 +13,7 @@ const OPTIONS:{key:SnoozeChoice;title:string;description:string;emoji:string}[] 
   {key:'tomorrow',title:'Até amanhã de manhã',description:'Retomar monitoramento às 08:00.',emoji:'☀'},
   {key:'manual',title:'Até eu reativar manualmente',description:'Pausar indefinidamente até você reativar.',emoji:'◉'},
 ];
+/** Permite escolher por quanto tempo os lembretes ficarão pausados. */
 export function SnoozeSheet({visible,onClose}:Props){
   const [choice,setChoice]=useState<SnoozeChoice>('30');
   const pause=useSettingsStore(s=>s.snooze);
