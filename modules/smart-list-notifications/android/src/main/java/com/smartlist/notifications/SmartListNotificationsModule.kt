@@ -14,6 +14,7 @@ import android.widget.RemoteViews
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
+/** Conecta o aplicativo React Native às notificações personalizadas do Android. */
 class SmartListNotificationsModule : Module() {
   private var actionReceiver: BroadcastReceiver? = null
 

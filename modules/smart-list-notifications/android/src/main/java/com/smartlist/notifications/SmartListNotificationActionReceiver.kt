@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.app.NotificationManager
 
+/** Recebe ações da notificação, como adiá-la, e as encaminha ao aplicativo. */
 class SmartListNotificationActionReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent) {
     val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
