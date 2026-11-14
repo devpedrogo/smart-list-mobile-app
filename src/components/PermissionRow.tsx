@@ -2,6 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '@/constants/theme';
 interface Props {name:string;description:string;allowed:boolean;icon:React.ComponentProps<typeof Ionicons>['name'];}
+/** Exibe uma permissão do aparelho e informa se ela está ativa ou pendente. */
 export function PermissionRow({name,description,allowed,icon}:Props){
   return <View style={styles.row}>
     <View style={styles.icon}><Ionicons name={icon} size={18} color={colors.primary}/></View>
