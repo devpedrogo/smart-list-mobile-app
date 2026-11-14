@@ -12,6 +12,7 @@ const STEPS=[
   {number:'PASSO 2',title:'Defina sua residência',description:'Configure sua casa e a distância ideal (150m a princípio) para ser avisado sem falsos alarmes.',icon:'locate-outline' as const},
   {number:'PASSO 3',title:'Lembretes inteligentes',description:'O app avisa na hora que você sai de casa para que sua viagem não seja em vão.',icon:'notifications-outline' as const},
 ];
+/** Apresenta o aplicativo e orienta a pessoa nos primeiros passos de configuração. */
 export default function Onboarding(){
   const router=useRouter();
   const [busy,setBusy]=useState(false);
