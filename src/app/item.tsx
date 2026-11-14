@@ -10,6 +10,7 @@ import { UnitChip } from '@/domain/UnitChip';
 import { TextField } from '@/ui/TextField';
 import { PrimaryButton } from '@/ui/PrimaryButton';
 import { useAppStore,findItem } from '@/store/useAppStore';
+/** Permite cadastrar um produto ou editar um item já existente na lista. */
 export default function ItemForm(){
   const router=useRouter();
   const params=useLocalSearchParams<{id?:string}>();
