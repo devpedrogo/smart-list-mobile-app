@@ -2,6 +2,7 @@ import type { PropsWithChildren } from 'react';
 import { Modal, Pressable, StyleSheet, View, Text } from 'react-native';
 import { colors } from '@/constants/theme';
 interface Props extends PropsWithChildren {visible:boolean;title:string;onClose:()=>void;}
+/** Exibe um painel sobre a tela, que pode ser fechado pelo botão ou ao tocar fora. */
 export function BottomSheet({visible,title,onClose,children}:Props){
   return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
     <View style={styles.backdrop}>
