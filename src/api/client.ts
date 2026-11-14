@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getDeviceId } from '@/api/deviceId';
+/** Representa um erro retornado pela API e guarda também o código HTTP. */
 export class ApiError extends Error {
   constructor(message: string, readonly status: number) {
     super(message);
