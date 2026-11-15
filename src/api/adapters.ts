@@ -2,6 +2,7 @@ import type { ShoppingItem, ShoppingItemGroups } from '@/types/shopping';
 import type { AppSettings, LocationPermission, NotificationPermission, Residence } from '@/types/settings';
 /** Converte os DTOs confirmados do backend para os modelos usados pelas telas. */
 type Dict = Record<string, unknown>;
+/** Confere se um valor recebido é um objeto que pode ser lido como dicionário. */
 function isObject(v: unknown): v is Dict { return typeof v === 'object' && v !== null && !Array.isArray(v); }
 const categoryLabels: Record<string, string> = {
   MERCEARIA: 'Mercearia',
@@ -16,17 +17,20 @@ const categoryLabels: Record<string, string> = {
   PAPELARIA: 'Papelaria',
   OUTROS: 'Outros',
 };
+/** Converte o código de categoria da API para o nome mostrado no aplicativo. */
 export function categoryFromApi(category: unknown): string {
   if (typeof category !== 'string') throw new Error('A API retornou uma categoria inválida.');
   const label = categoryLabels[category];
   if (!label) throw new Error(`A API retornou uma categoria desconhecida: "${category}".`);
   return label;
 }
+/** Converte o nome de categoria do aplicativo para o código esperado pela API. */
 export function categoryToApi(category: string): string {
   const entry = Object.entries(categoryLabels).find(([, label]) => label === category);
   if (!entry) throw new Error(`A categoria "${category}" não é aceita pela API.`);
   return entry[0];
 }
+/** Valida um item recebido da API e o adapta ao formato usado pelo aplicativo. */
 export function mapShoppingItem(v: unknown): ShoppingItem | null {
   if (!isObject(v)) return null;
   const id = v.id;
@@ -44,6 +48,7 @@ export function mapShoppingItem(v: unknown): ShoppingItem | null {
     completedAt: null,
   };
 }
+/** Converte os grupos de itens pendentes e concluídos recebidos da API. */
 export function mapShoppingGroups(response: unknown): ShoppingItemGroups {
   if (!isObject(response) || !Array.isArray(response.pendingItems) || !Array.isArray(response.completedItems)) {
     throw new Error('A API retornou uma lista de compras em formato inválido.');
@@ -60,6 +65,7 @@ export function mapShoppingGroups(response: unknown): ShoppingItemGroups {
     completed: comp,
   };
 }
+/** Valida as configurações recebidas da API e adapta seus campos ao modelo local. */
 export function mapSettings(v: unknown): AppSettings {
   if (!isObject(v)) throw new Error('A API retornou configurações em formato inválido.');
   const data = v;
@@ -85,6 +91,7 @@ export function mapSettings(v: unknown): AppSettings {
     locationPermission: mappedLocationPermission,
   };
 }
+/** Valida e converte os dados de residência recebidos da API. */
 export function mapResidence(v: unknown): Residence | null {
   if (v == null) return null;
   const obj = isObject(v) ? v : {};
