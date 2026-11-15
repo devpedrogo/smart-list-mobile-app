@@ -2,6 +2,7 @@ import axios from 'axios';
 import { getDeviceId } from '@/api/deviceId';
 /** Representa um erro retornado pela API e guarda também o código HTTP. */
 export class ApiError extends Error {
+  /** Cria um erro da API com uma mensagem legível e o código HTTP da resposta. */
   constructor(message: string, readonly status: number) {
     super(message);
     this.name = 'ApiError';
@@ -14,10 +15,12 @@ export const api = axios.create({
   timeout: 15000,
   headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
 });
+/** Inclui o identificador persistente do aparelho em cada requisição. */
 api.interceptors.request.use(async config => {
   config.headers.set('X-Device-ID', await getDeviceId());
   return config;
 });
+/** Converte falhas de rede e respostas HTTP em erros compreensíveis pelo aplicativo. */
 api.interceptors.response.use(
   response => response,
   error => {
