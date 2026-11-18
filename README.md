@@ -71,6 +71,12 @@ Substitua o endereço e a porta pelos valores do seu ambiente. Informe a **orige
 
 > ⚠️ O projeto permite tráfego HTTP no Android para facilitar o desenvolvimento local. Antes de distribuir uma versão, use HTTPS e desative o tráfego sem criptografia na configuração nativa. A variável `EXPO_PUBLIC_*` é incorporada ao aplicativo; não coloque nela senhas, tokens ou outros segredos.
 
+### Chave do Google Maps no Android
+
+O mapa da tela de residência usa o Google Maps no Android e precisa de uma chave para abrir. No Google Cloud, habilite o **Maps SDK for Android**, configure o faturamento e crie uma chave. Restrinja-a ao app Android `com.smartlist.mobile` e à API **Maps SDK for Android**; para a restrição por aplicativo, use o SHA-1 do certificado de assinatura do EAS.
+
+No projeto EAS, cadastre a variável `ANDROID_GOOGLE_MAPS_API_KEY` no ambiente **preview** (para builds `preview`). O valor é incorporado ao manifesto Android e, portanto, pode ser extraído do APK: trate-o como uma chave pública, restrinja seu uso no Google Cloud e não o grave no repositório. A configuração dinâmica em `app.config.js` interrompe um build EAS se a variável estiver ausente, em vez de gerar um APK que fecha ao abrir o mapa.
+
 ### 3. Inicie o aplicativo
 
 Para abrir no Expo Go:
