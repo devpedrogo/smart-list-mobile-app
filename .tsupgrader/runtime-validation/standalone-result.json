@@ -1,0 +1,27 @@
+{
+  "planHash": "26e19031fd4e99a857d26cf2ca72e883e1a5f707757b142c514922260bfe2335",
+  "phase": "standalone",
+  "recordedAtUtc": "2026-11-18T04:27:47.6867639Z",
+  "retryCount": 1,
+  "resetBaseline": false,
+  "complete": true,
+  "result": {
+    "setupSucceeded": false,
+    "setupDurationMs": 60278,
+    "setupFailureOutput": "setup step 0 \u0027npm\u0027 failed (exit=, timedOut=True)\r\n",
+    "assertions": [],
+    "executions": [
+      {
+        "source": "setup[0]",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "ci"
+        ],
+        "cwd": "C:\\Users\\pedro\\Desenvolvimento\\smart-list-expo",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      }
+    ]
+  }
+}
